@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XAUUSD Trading Journal — Multi Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f14;
+  --bg2: #13161e;
+  --bg3: #1a1e2a;
+  --border: #252a38;
+  --border2: #2e3447;
+  --text: #e8eaf0;
+  --text2: #8b91a8;
+  --text3: #5a6078;
+  --gold: #d4a843;
+  --gold2: #f0c855;
+  --gold-dim: rgba(212,168,67,0.12);
+  --green: #3dd68c;
+  --red: #f56565;
+  --blue: #5b8af5;
+  --purple: #a78bfa;
+  --orange: #fb923c;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ── PROFILE SCREEN ── */
+#profile-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: radial-gradient(ellipse at 60% 20%, rgba(212,168,67,0.07) 0%, transparent 60%),
+              radial-gradient(ellipse at 10% 80%, rgba(91,138,245,0.05) 0%, transparent 50%),
+              var(--bg);
+}
+.profile-logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.profile-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 6px;
+  text-align: center;
+}
+.profile-sub {
+  color: var(--text3);
+  font-size: 13px;
+  margin-bottom: 40px;
+  text-align: center;
+}
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  width: 100%;
+  max-width: 900px;
+  margin-bottom: 20px;
+}
+.profile-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.profile-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--gold-dim), transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.profile-card:hover { border-color: var(--gold); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(212,168,67,0.12); }
+.profile-card:hover::before { opacity: 1; }
+.profile-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin-bottom: 12px;
+  font-weight: 700;
+  font-family: 'Syne', sans-serif;
+}
+.profile-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+.profile-stats-mini {
+  font-size: 11px;
+  color: var(--text3);
+  font-family: 'DM Mono', monospace;
+}
+.profile-del {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.profile-card:hover .profile-del { opacity: 1; }
+.profile-del:hover { color: var(--red) !important; }
+
+.add-profile-btn {
+  background: transparent;
+  border: 1px dashed var(--border2);
+  border-radius: var(--radius);
+  padding: 22px 18px;
+  cursor: pointer;
+  color: var(--text3);
+  font-size: 13px;
+  font-family: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  min-height: 130px;
+}
+.add-profile-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+.add-profile-btn .plus { font-size: 28px; font-weight: 300; }
+
+/* ── TOPBAR ── */
+#app-screen { display: none; }
+.topbar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.back-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.back-btn:hover { border-color: var(--border2); color: var(--text); }
+.topbar-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+.topbar-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Syne', sans-serif;
+}
+.topbar-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+}
+.topbar-sub { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
+.topbar-right { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+.btn {
+  font-size: 12px;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  color: var(--text2);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn:hover { border-color: var(--border); color: var(--text); background: var(--border); }
+.btn.primary { background: var(--gold); color: #0d0f14; border-color: var(--gold); font-weight: 600; }
+.btn.primary:hover { background: var(--gold2); border-color: var(--gold2); }
+.btn.danger { color: var(--red); border-color: rgba(245,101,101,0.3); }
+.btn.danger:hover { background: rgba(245,101,101,0.1); }
+
+/* ── MONTH BAR ── */
+.month-bar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.month-bar::-webkit-scrollbar { display: none; }
+.month-tab {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 10px 12px;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  color: var(--text3);
+  white-space: nowrap;
+  transition: all 0.15s;
+  user-select: none;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: inherit;
+}
+.month-tab:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+.month-tab.active { color: var(--gold); border-bottom-color: var(--gold); font-weight: 700; }
+.month-tab.has-data { color: var(--text2); }
+.month-tab.has-data.active { color: var(--gold); }
+.year-select {
+  font-size: 11px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg3);
+  color: var(--text2);
+  font-family: inherit;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* ── MAIN ── */
+.main { padding: 20px; max-width: 1800px; margin: 0 auto; }
+
+/* ── STATS ── */
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 10px;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-label:first-child { margin-top: 0; }
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.stat-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  transition: border-color 0.15s;
+}
+.stat-card:hover { border-color: var(--border2); }
+.stat-label { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-family: 'DM Mono', monospace; }
+.stat-val { font-size: 24px; font-weight: 700; font-family: 'Syne', sans-serif; color: var(--text); }
+.stat-sub { font-size: 10px; color: var(--text3); margin-top: 3px; font-family: 'DM Mono', monospace; }
+.stat-val.pos { color: var(--green); }
+.stat-val.neg { color: var(--red); }
+.stat-val.gold { color: var(--gold); }
+.stat-val.blue { color: var(--blue); }
+.stat-val.purple { color: var(--purple); }
+
+/* Finance stat special */
+.stat-card.finance-cap {
+  border-color: rgba(212,168,67,0.2);
+}
+.cap-input {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Syne', sans-serif;
+  background: transparent;
+  border: none;
+  color: var(--gold);
+  width: 100%;
+  outline: none;
+  margin-top: 4px;
+}
+.cap-input::placeholder { color: var(--text3); font-size: 14px; font-family: inherit; }
+.cap-prefix { font-size: 12px; color: var(--text3); margin-right: 2px; }
+
+/* ── CALC ── */
+.calc-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.calc-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+  font-family: 'DM Mono', monospace;
+}
+.calc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; align-items: end; }
+.calc-group { display: flex; flex-direction: column; gap: 5px; }
+.calc-group label { font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; }
+.calc-group input, .calc-group select {
+  font-size: 13px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg3);
+  color: var(--text);
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+.calc-group input:focus, .calc-group select:focus { outline: none; border-color: var(--gold); }
+.calc-results { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.calc-result {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  min-width: 130px;
+}
+.calc-result-label { font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; margin-bottom: 4px; }
+.calc-result-val { font-size: 22px; font-weight: 700; font-family: 'Syne', sans-serif; color: var(--gold); }
+
+/* ── TABLE ── */
+.tbl-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-top: 16px;
+}
+.tbl-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.tbl-count { font-size: 12px; color: var(--text3); font-family: 'DM Mono', monospace; }
+.search-input {
+  font-size: 12px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg3);
+  color: var(--text);
+  font-family: inherit;
+  width: 180px;
+  margin-left: auto;
+  transition: border-color 0.15s;
+}
+.search-input:focus { outline: none; border-color: var(--gold); }
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 1500px; }
+thead th {
+  background: var(--bg3);
+  padding: 9px 12px;
+  text-align: left;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  font-family: 'DM Mono', monospace;
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(255,255,255,0.02); }
+td { padding: 8px 12px; vertical-align: middle; font-size: 12px; }
+.empty-row td { text-align: center; color: var(--text3); padding: 3rem; font-size: 13px; }
+
+/* ── BADGES ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  font-family: 'DM Mono', monospace;
+}
+.badge.buy { background: rgba(61,214,140,0.12); color: var(--green); }
+.badge.sell { background: rgba(245,101,101,0.12); color: var(--red); }
+.badge.win { background: rgba(61,214,140,0.12); color: var(--green); }
+.badge.loss { background: rgba(245,101,101,0.12); color: var(--red); }
+.badge.be { background: rgba(251,146,60,0.12); color: var(--orange); }
+.badge.open-b { background: rgba(91,138,245,0.12); color: var(--blue); }
+.badge.emo-calm { background: rgba(91,138,245,0.12); color: var(--blue); }
+.badge.emo-fomo { background: rgba(251,146,60,0.12); color: var(--orange); }
+.badge.emo-fear { background: rgba(245,101,101,0.12); color: var(--red); }
+.badge.emo-conf { background: rgba(61,214,140,0.12); color: var(--green); }
+.badge.emo-greed { background: rgba(167,139,250,0.12); color: var(--purple); }
+.badge.emo-rev { background: rgba(212,168,67,0.12); color: var(--gold); }
+.pnl-pos { color: var(--green); font-weight: 600; font-family: 'DM Mono', monospace; }
+.pnl-neg { color: var(--red); font-weight: 600; font-family: 'DM Mono', monospace; }
+.rr-good { color: var(--green); font-weight: 600; }
+.rr-ok { color: var(--orange); font-weight: 600; }
+.rr-bad { color: var(--red); font-weight: 600; }
+.rr-neu { color: var(--text3); }
+.mono { font-family: 'DM Mono', monospace; }
+
+/* ── MODAL ── */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.overlay.open { display: flex; }
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 24px;
+  width: min(700px, 96vw);
+  max-height: 94vh;
+  overflow-y: auto;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+}
+.modal-head { margin-bottom: 20px; }
+.modal-head h2 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; }
+.modal-head .cur-time { font-size: 11px; color: var(--text3); margin-top: 4px; font-family: 'DM Mono', monospace; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.sec-label {
+  grid-column: 1/-1;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  margin-top: 8px;
+  font-family: 'DM Mono', monospace;
+}
+.fg { display: flex; flex-direction: column; gap: 5px; }
+.fg.full { grid-column: 1/-1; }
+.fg label { font-size: 11px; color: var(--text2); font-weight: 500; font-family: 'DM Mono', monospace; }
+.fg input, .fg select, .fg textarea {
+  font-size: 13px;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg3);
+  color: var(--text);
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+.fg input:focus, .fg select:focus, .fg textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,67,0.1); }
+.fg textarea { resize: vertical; min-height: 60px; }
+.rr-hint { font-size: 11px; min-height: 16px; margin-top: 2px; font-weight: 500; }
+.modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+/* ── CONFIRM ── */
+.confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 400; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+.confirm-overlay.open { display: flex; }
+.confirm-box {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 28px;
+  width: min(360px, 90vw);
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.confirm-box p { font-size: 15px; margin-bottom: 20px; color: var(--text2); }
+.confirm-box .btn-row { display: flex; gap: 8px; justify-content: center; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--text);
+  color: var(--bg);
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  z-index: 500;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  font-weight: 600;
+}
+.toast.show { opacity: 1; }
+
+/* ── PROFILE MODAL ── */
+.profile-form { display: flex; flex-direction: column; gap: 14px; }
+.profile-form label { font-size: 12px; color: var(--text2); margin-bottom: 4px; display: block; font-family: 'DM Mono', monospace; }
+.profile-form input {
+  font-size: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg3);
+  color: var(--text);
+  width: 100%;
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+.profile-form input:focus { outline: none; border-color: var(--gold); }
+.color-picks { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+.color-pick {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.15s;
+}
+.color-pick.active { border-color: var(--text); transform: scale(1.15); }
+.emoji-picks { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.emoji-pick {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.emoji-pick.active { border-color: var(--gold); background: var(--gold-dim); }
+
+/* ── ZONE ORDERS ── */
+.zone-order-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 1fr 1fr auto;
+  gap: 8px;
+  align-items: end;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  transition: border-color 0.15s;
+}
+.zone-order-row:hover { border-color: var(--border2); }
+.zone-order-num {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--border2);
+  color: var(--text3);
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1px;
+}
+.zone-field { display: flex; flex-direction: column; gap: 3px; }
+.zone-field label { font-size: 9px; color: var(--text3); font-family: 'DM Mono', monospace; }
+.zone-field input {
+  font-size: 12px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg2);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+.zone-field input:focus { outline: none; border-color: var(--gold); }
+.zone-order-del {
+  background: none;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 2px;
+  line-height: 1;
+  transition: color 0.15s;
+  margin-bottom: 1px;
+}
+.zone-order-del:hover { color: var(--red); }
+
+@media (max-width: 640px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .form-grid { grid-template-columns: 1fr 1fr; }
+  .fg.full { grid-column: 1/-1; }
+  .main { padding: 12px; }
+  .profile-title { font-size: 24px; }
+  .calc-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ PROFILE SCREEN ══ -->
+<div id="profile-screen">
+  <div class="profile-logo">⚡ XAUUSD</div>
+  <div class="profile-title">Trading Journal</div>
+  <div class="profile-sub">เลือกโปรไฟล์ของคุณ หรือเพิ่มสมาชิกใหม่</div>
+  <div class="profile-grid" id="profile-grid"></div>
+  <button class="add-profile-btn" onclick="openProfileModal()" style="max-width:200px;width:100%">
+    <div class="plus">+</div>
+    <div>เพิ่มสมาชิกใหม่</div>
+  </button>
+</div>
+
+<!-- ══ APP SCREEN ══ -->
+<div id="app-screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">← โปรไฟล์</button>
+    <div class="topbar-profile">
+      <div class="topbar-avatar" id="tb-avatar"></div>
+      <div>
+        <div class="topbar-name" id="tb-name"></div>
+        <div class="topbar-sub" id="tb-clock">—</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="btn" onclick="exportCSV()">⬇ CSV</button>
+      <button class="btn" onclick="importTrigger()">⬆ Import</button>
+      <input type="file" id="import-input" accept=".csv" style="display:none" onchange="importCSV(event)">
+      <button class="btn primary" onclick="openForm()">+ เพิ่มไม้ใหม่</button>
+    </div>
+  </div>
+
+  <div class="month-bar" id="month-bar"></div>
+
+  <div class="main">
+    <!-- OVERVIEW -->
+    <div class="section-label">📊 ภาพรวมเดือนนี้</div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">ไม้ทั้งหมด</div><div class="stat-val" id="s-total">0</div></div>
+      <div class="stat-card"><div class="stat-label">🟢 Buy</div><div class="stat-val pos" id="s-buy">0</div></div>
+      <div class="stat-card"><div class="stat-label">🔴 Sell</div><div class="stat-val neg" id="s-sell">0</div></div>
+      <div class="stat-card"><div class="stat-label">✅ Win</div><div class="stat-val pos" id="s-win">0</div></div>
+      <div class="stat-card"><div class="stat-label">❌ Loss</div><div class="stat-val neg" id="s-loss">0</div></div>
+      <div class="stat-card"><div class="stat-label">〰️ BE</div><div class="stat-val" id="s-be">0</div></div>
+      <div class="stat-card"><div class="stat-label">Win Rate</div><div class="stat-val gold" id="s-wr">—</div></div>
+      <div class="stat-card"><div class="stat-label">Avg R:R (Win)</div><div class="stat-val" id="s-rr">—</div><div class="stat-sub" id="s-rr-sub"></div></div>
+      <div class="stat-card"><div class="stat-label">Total PnL</div><div class="stat-val" id="s-pnl">$0.00</div></div>
+      <div class="stat-card"><div class="stat-label">ไม้วันนี้</div><div class="stat-val blue" id="s-today">0</div></div>
+    </div>
+
+    <!-- STREAK -->
+    <div class="section-label">🔥 Streak</div>
+    <div class="stats-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px,1fr))">
+      <div class="stat-card"><div class="stat-label">🏆 ชนะสูงสุด</div><div class="stat-val pos" id="s-wstreak">0</div><div class="stat-sub">ไม้ติดต่อกัน</div></div>
+      <div class="stat-card"><div class="stat-label">💀 แพ้สูงสุด</div><div class="stat-val neg" id="s-lstreak">0</div><div class="stat-sub">ไม้ติดต่อกัน</div></div>
+      <div class="stat-card"><div class="stat-label">⚡ Streak ปัจจุบัน</div><div class="stat-val" id="s-curstreak">—</div><div class="stat-sub" id="s-curstreak-sub"></div></div>
+    </div>
+
+    <!-- EMOTION -->
+    <div class="section-label">🧠 สถิติอารมณ์</div>
+    <div class="stats-grid" style="grid-template-columns: repeat(auto-fill, minmax(110px,1fr))">
+      <div class="stat-card"><div class="stat-label">😌 สงบ</div><div class="stat-val blue" id="e-calm">0</div></div>
+      <div class="stat-card"><div class="stat-label">😰 FOMO</div><div class="stat-val" style="color:var(--orange)" id="e-fomo">0</div></div>
+      <div class="stat-card"><div class="stat-label">😨 กลัว</div><div class="stat-val neg" id="e-fear">0</div></div>
+      <div class="stat-card"><div class="stat-label">💪 มั่นใจ</div><div class="stat-val pos" id="e-conf">0</div></div>
+      <div class="stat-card"><div class="stat-label">🤑 โลภ</div><div class="stat-val purple" id="e-greed">0</div></div>
+      <div class="stat-card"><div class="stat-label">😤 แก้ตัว</div><div class="stat-val gold" id="e-rev">0</div></div>
+    </div>
+
+    <!-- FINANCE -->
+    <div class="section-label">💰 การเงิน</div>
+    <div class="stats-grid" style="grid-template-columns: repeat(auto-fill, minmax(170px,1fr))">
+      <div class="stat-card finance-cap">
+        <div class="stat-label">💵 เงินทุนเริ่มต้น</div>
+        <div style="display:flex;align-items:baseline;gap:4px;margin-top:4px">
+          <span class="cap-prefix">$</span>
+          <input class="cap-input" type="number" id="capital-input" placeholder="10000" min="0" step="100" oninput="saveCapital()"/>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">💵 เงินทุนคงเหลือ</div>
+        <div style="display:flex;align-items:baseline;gap:4px;margin-top:4px">
+          <span class="cap-prefix">$</span>
+          <input class="cap-input" type="number" id="balance-input" placeholder="0" min="0" step="100" oninput="saveBalance()" style="color:var(--text2)"/>
+        </div>
+        <div class="stat-sub" id="s-balance-sub">กรอกยอดปัจจุบัน</div>
+      </div>
+      <div class="stat-card"><div class="stat-label">📈 Equity (คำนวณ)</div><div class="stat-val" id="s-equity">—</div><div class="stat-sub" id="s-equity-pct"></div></div>
+      <div class="stat-card"><div class="stat-label">📅 PnL วันนี้</div><div class="stat-val" id="s-pnl-today">$0.00</div><div class="stat-sub" id="s-pnl-today-sub"></div></div>
+      <div class="stat-card"><div class="stat-label">📆 PnL สัปดาห์นี้</div><div class="stat-val" id="s-pnl-week">$0.00</div></div>
+      <div class="stat-card"><div class="stat-label">🗓️ PnL เดือนนี้</div><div class="stat-val" id="s-pnl-month">$0.00</div></div>
+    </div>
+
+    <!-- POSITION CALC -->
+    <div class="section-label">🧮 คำนวณ Position Size</div>
+    <div class="calc-card">
+      <div class="calc-grid">
+        <div class="calc-group"><label>Port / เงินทุน ($)</label><input type="number" id="pc-port" placeholder="1000" step="100" oninput="calcPos()"/></div>
+        <div class="calc-group"><label>ยอมขาดทุนต่อไม้ ($)</label><input type="number" id="pc-risk" placeholder="60" step="1" oninput="calcPos()"/></div>
+        <div class="calc-group"><label>SL (Pips)</label><input type="number" id="pc-sl" placeholder="100" step="1" oninput="calcPos()"/></div>
+        <div class="calc-group"><label>% ความเสี่ยง/Port</label><input type="number" id="pc-riskpct" placeholder="2" step="0.5" min="0.1" max="100" oninput="calcPos()"/></div>
+      </div>
+      <div class="calc-results">
+        <div class="calc-result"><div class="calc-result-label">Lot Size แนะนำ</div><div class="calc-result-val" id="pc-lot">—</div></div>
+        <div class="calc-result" style="border-color:rgba(61,214,140,0.2)"><div class="calc-result-label">ขาดทุนสูงสุด ($)</div><div class="calc-result-val" style="color:var(--green)" id="pc-maxloss">—</div></div>
+        <div class="calc-result" style="border-color:rgba(251,146,60,0.2)"><div class="calc-result-label">% Port ที่เสี่ยง</div><div class="calc-result-val" style="color:var(--orange)" id="pc-riskshow">—</div></div>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="tbl-card">
+      <div class="tbl-header">
+        <div class="tbl-count" id="row-count">0 รายการ</div>
+        <input class="search-input" type="text" placeholder="🔍 ค้นหา..." oninput="renderTable(this.value)">
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>วันที่</th><th>เวลา</th><th>ไม้ที่</th><th>Symbol</th>
+              <th>Direction</th><th>Zone (Orders × Lot)</th><th>Total Lot</th>
+              <th>Entry</th><th>Exit</th><th>TP</th><th>SL</th><th>BE</th><th>R:R</th>
+              <th>เหตุผล Entry</th><th>เหตุผล Exit</th><th>อารมณ์ (บันทึก)</th>
+              <th>ผลลัพธ์</th><th>อารมณ์</th><th>PnL ($)</th><th>จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="tbl-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TRADE FORM MODAL ══ -->
+<div class="overlay" id="form-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="form-title">+ บันทึกไม้ใหม่</h2>
+      <div class="cur-time" id="modal-clock">—</div>
+    </div>
+    <div class="form-grid">
+      <div class="sec-label">📅 วันที่ & เวลา</div>
+      <div class="fg"><label>วันที่</label><input type="date" id="f-date"/></div>
+      <div class="fg"><label>เวลา</label><input type="time" id="f-time" step="1"/></div>
+      <div class="fg"><label>ไม้ที่ (ต่อวัน)</label><input type="number" id="f-no" placeholder="1" min="1"/></div>
+
+      <div class="sec-label">📌 ข้อมูลการเทรด</div>
+      <div class="fg"><label>Symbol</label>
+        <select id="f-sym">
+          <option>XAUUSD</option><option>XAGUSD</option>
+          <option>EURUSD</option><option>USDJPY</option><option>อื่นๆ</option>
+        </select>
+      </div>
+      <div class="fg"><label>Direction</label>
+        <select id="f-dir" onchange="calcRR()">
+          <option value="Buy">Buy</option><option value="Sell">Sell</option>
+        </select>
+      </div>
+      <div class="fg full" style="margin-top:2px">
+        <label>📦 Zone Orders — ระบุ Lot Size แต่ละ Order</label>
+        <div id="zone-orders-container" style="display:flex;flex-direction:column;gap:6px;margin-top:4px"></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap">
+          <button type="button" class="btn" style="font-size:11px;padding:5px 12px" onclick="addZoneOrder()">+ เพิ่ม Order</button>
+          <div id="zone-summary" style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace"></div>
+        </div>
+      </div>
+
+      <div class="sec-label">💰 ราคา & ความเสี่ยง</div>
+      <div class="fg"><label>ราคา Entry</label><input type="number" id="f-entry" placeholder="2300.00" step="0.01" oninput="calcRR()"/></div>
+      <div class="fg"><label>TP</label><input type="number" id="f-tp" placeholder="2320.00" step="0.01"/></div>
+      <div class="fg"><label>SL</label><input type="number" id="f-sl" placeholder="2290.00" step="0.01" oninput="calcRR();updateZoneSummary()"/></div>
+      <div class="fg"><label>BE (Break Even)</label><input type="number" id="f-be" placeholder="0.00" step="0.01"/></div>
+      <div class="fg"><label>ราคา Exit</label><input type="number" id="f-exit" placeholder="0.00" step="0.01" oninput="calcRR()"/></div>
+      <div class="fg">
+        <label>R:R (คำนวณอัตโนมัติ)</label>
+        <input type="text" id="f-rr" placeholder="—" readonly style="color:var(--gold);font-weight:700;font-family:'DM Mono',monospace;"/>
+        <div class="rr-hint" id="rr-hint"></div>
+      </div>
+
+      <div class="sec-label">📋 บันทึก</div>
+      <div class="fg"><label>ผลลัพธ์</label>
+        <select id="f-result" onchange="calcRR()">
+          <option value="Win">Win</option><option value="Loss">Loss</option>
+          <option value="BE">Break Even</option><option value="Open">Still Open</option>
+        </select>
+      </div>
+      <div class="fg"><label>อารมณ์</label>
+        <select id="f-emo">
+          <option value="สงบ">😌 สงบ / Calm</option>
+          <option value="FOMO">😰 FOMO</option>
+          <option value="กลัว">😨 กลัว / Fear</option>
+          <option value="มั่นใจ">💪 มั่นใจ / Confident</option>
+          <option value="โลภ">🤑 โลภ / Greedy</option>
+          <option value="แก้ตัว">😤 แก้ตัว / Revenge</option>
+        </select>
+      </div>
+      <div class="fg"><label>PnL ($)</label><input type="number" id="f-pnl" placeholder="120 หรือ -50" step="0.01"/></div>
+      <div class="fg full"><label>เหตุผลในการ Entry</label><textarea id="f-rin" placeholder="Breakout แนวต้าน, EMA crossover, RSI oversold..."></textarea></div>
+      <div class="fg full"><label>เหตุผลในการ Exit</label><textarea id="f-rout" placeholder="TP hit, candle กลับตัว, SL hit..."></textarea></div>
+      <div class="fg full"><label>🧠 อารมณ์ตอนเทรด (บันทึกความรู้สึก)</label><textarea id="f-rmood" placeholder="ใจร้อน, รู้สึกกังวล, มั่นใจมาก, เครียด..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeForm()">ยกเลิก</button>
+      <button class="btn primary" onclick="saveEntry()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PROFILE MODAL ══ -->
+<div class="overlay" id="profile-overlay">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-head"><h2>👤 เพิ่มสมาชิกใหม่</h2></div>
+    <div class="profile-form">
+      <div>
+        <label>ชื่อ</label>
+        <input type="text" id="pf-name" placeholder="เช่น นาย A, Trading Pro..." maxlength="30"/>
+      </div>
+      <div>
+        <label>เลือก Emoji</label>
+        <div class="emoji-picks" id="emoji-picks"></div>
+      </div>
+      <div>
+        <label>เลือกสี</label>
+        <div class="color-picks" id="color-picks"></div>
+      </div>
+    </div>
+    <div class="modal-footer" style="margin-top:20px">
+      <button class="btn" onclick="closeProfileModal()">ยกเลิก</button>
+      <button class="btn primary" onclick="saveNewProfile()">✓ สร้างโปรไฟล์</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <p id="confirm-msg">ต้องการลบรายการนี้?</p>
+    <div class="btn-row">
+      <button class="btn" onclick="closeConfirm()">ยกเลิก</button>
+      <button class="btn danger" id="confirm-ok">ลบ</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════
+   DATA MODEL
+   Profiles stored as array in localStorage
+   Each profile has: id, name, emoji, color
+   Trades stored per profile key
+══════════════════════════════════════════ */
+
+const PROFILES_KEY = 'xauusd_profiles_v1';
+const MONTHS_TH = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const EMOJIS = ['🦁','🐯','🦊','🐻','🦅','🐉','🦁','🐺','🐬','🦋','🌟','⚡','🔥','💎','🏹','🎯'];
+const COLORS = ['#d4a843','#3dd68c','#5b8af5','#f56565','#a78bfa','#fb923c','#ec4899','#06b6d4','#84cc16','#f59e0b'];
+
+let profiles = [];
+let currentProfile = null;
+let trades = [];
+let editIdx = -1;
+let activeYear = new Date().getFullYear();
+let activeMonth = new Date().getMonth() + 1;
+let selectedEmoji = EMOJIS[0];
+let selectedColor = COLORS[0];
+let clockInterval = null;
+
+/* ── Helpers ── */
+function localDateStr(d) {
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function localTimeStr(d) {
+  return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0');
+}
+const todayStr = localDateStr(new Date());
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+function openConfirm(msg, cb) {
+  document.getElementById('confirm-msg').textContent = msg;
+  document.getElementById('confirm-overlay').classList.add('open');
+  document.getElementById('confirm-ok').onclick = () => { closeConfirm(); cb(); };
+}
+function closeConfirm() { document.getElementById('confirm-overlay').classList.remove('open'); }
+document.addEventListener('keydown', e => { if(e.key === 'Escape') { closeForm(); closeConfirm(); closeProfileModal(); } });
+
+/* ── Profiles ── */
+function loadProfiles() {
+  try { profiles = JSON.parse(localStorage.getItem(PROFILES_KEY) || '[]'); } catch(e) { profiles = []; }
+}
+function saveProfiles() {
+  localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+}
+function tradesKey(pid) { return 'xauusd_trades_' + pid; }
+function capitalKey(pid) { return 'xauusd_capital_' + pid; }
+function balanceKey(pid) { return 'xauusd_balance_' + pid; }
+function profileSettingsKey(pid) { return 'xauusd_settings_' + pid; }
+
+function loadTrades(pid) {
+  try { trades = JSON.parse(localStorage.getItem(tradesKey(pid)) || '[]'); } catch(e) { trades = []; }
+}
+function saveTrades() {
+  localStorage.setItem(tradesKey(currentProfile.id), JSON.stringify(trades));
+  showToast('✓ บันทึกแล้ว');
+}
+
+function renderProfileScreen() {
+  loadProfiles();
+  const grid = document.getElementById('profile-grid');
+  if (!profiles.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--text3);padding:20px 0;font-size:13px">ยังไม่มีโปรไฟล์ กด "เพิ่มสมาชิกใหม่" เพื่อเริ่มต้น</div>`;
+    return;
+  }
+  grid.innerHTML = profiles.map(p => {
+    // mini stats
+    let trs = [];
+    try { trs = JSON.parse(localStorage.getItem(tradesKey(p.id)) || '[]'); } catch(e) {}
+    const wins = trs.filter(t => t.result==='Win').length;
+    const total = trs.filter(t => t.result==='Win'||t.result==='Loss').length;
+    const wr = total > 0 ? Math.round(wins/total*100) : 0;
+    const pnl = trs.reduce((s,t) => s+(parseFloat(t.pnl)||0), 0);
+    const pnlStr = (pnl >= 0 ? '+$' : '-$') + Math.abs(pnl).toFixed(0);
+    return `
+      <div class="profile-card" onclick="enterProfile('${p.id}')">
+        <button class="profile-del" onclick="event.stopPropagation();deleteProfile('${p.id}')" title="ลบโปรไฟล์">🗑</button>
+        <div class="profile-avatar" style="background:${p.color}22;color:${p.color}">${p.emoji || p.name.charAt(0)}</div>
+        <div class="profile-name" style="color:${p.color}">${p.name}</div>
+        <div class="profile-stats-mini">${trs.length} ไม้ · WR ${wr}% · ${pnlStr}</div>
+      </div>`;
+  }).join('');
+}
+
+function enterProfile(pid) {
+  currentProfile = profiles.find(p => p.id === pid);
+  if (!currentProfile) return;
+  activeYear = new Date().getFullYear();
+  activeMonth = new Date().getMonth() + 1;
+  loadTrades(pid);
+  loadProfileSettings();
+  document.getElementById('profile-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+  // topbar
+  const av = document.getElementById('tb-avatar');
+  av.textContent = currentProfile.emoji || currentProfile.name.charAt(0);
+  av.style.background = currentProfile.color + '22';
+  av.style.color = currentProfile.color;
+  document.getElementById('tb-name').textContent = currentProfile.name;
+  // capital/balance
+  const cap = localStorage.getItem(capitalKey(pid)) || '';
+  const bal = localStorage.getItem(balanceKey(pid)) || '';
+  if (cap) document.getElementById('capital-input').value = cap;
+  else document.getElementById('capital-input').value = '';
+  if (bal) document.getElementById('balance-input').value = bal;
+  else document.getElementById('balance-input').value = '';
+  startClock();
+  buildMonthBar();
+  renderTable();
+  updateStats();
+}
+
+function loadProfileSettings() {
+  // settings now stored per-zone in trade records; no global defaults needed
+}
+function saveProfile() {
+  // no-op, kept for compatibility
+}
+
+function goBack() {
+  stopClock();
+  document.getElementById('app-screen').style.display = 'none';
+  document.getElementById('profile-screen').style.display = '';
+  renderProfileScreen();
+}
+
+function deleteProfile(pid) {
+  openConfirm('ต้องการลบโปรไฟล์นี้และข้อมูลทั้งหมด?', () => {
+    profiles = profiles.filter(p => p.id !== pid);
+    saveProfiles();
+    localStorage.removeItem(tradesKey(pid));
+    localStorage.removeItem(capitalKey(pid));
+    localStorage.removeItem(balanceKey(pid));
+    localStorage.removeItem(profileSettingsKey(pid));
+    renderProfileScreen();
+    showToast('✓ ลบโปรไฟล์แล้ว');
+  });
+}
+
+/* ── Profile Modal ── */
+function openProfileModal() {
+  selectedEmoji = EMOJIS[0];
+  selectedColor = COLORS[0];
+  document.getElementById('pf-name').value = '';
+  // emoji
+  document.getElementById('emoji-picks').innerHTML = EMOJIS.map((e,i) =>
+    `<div class="emoji-pick${i===0?' active':''}" onclick="pickEmoji('${e}',this)">${e}</div>`
+  ).join('');
+  // colors
+  document.getElementById('color-picks').innerHTML = COLORS.map((c,i) =>
+    `<div class="color-pick${i===0?' active':''}" style="background:${c}" onclick="pickColor('${c}',this)" title="${c}"></div>`
+  ).join('');
+  document.getElementById('profile-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('pf-name').focus(), 100);
+}
+function closeProfileModal() { document.getElementById('profile-overlay').classList.remove('open'); }
+function pickEmoji(e, el) {
+  selectedEmoji = e;
+  document.querySelectorAll('.emoji-pick').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+}
+function pickColor(c, el) {
+  selectedColor = c;
+  document.querySelectorAll('.color-pick').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+}
+function saveNewProfile() {
+  const name = document.getElementById('pf-name').value.trim();
+  if (!name) { showToast('⚠️ กรุณาใส่ชื่อ'); return; }
+  const id = 'p_' + Date.now();
+  profiles.push({ id, name, emoji: selectedEmoji, color: selectedColor });
+  saveProfiles();
+  closeProfileModal();
+  renderProfileScreen();
+  showToast('✓ สร้างโปรไฟล์ ' + name + ' แล้ว');
+}
+
+/* ── Clock ── */
+function startClock() {
+  stopClock();
+  function tick() {
+    const n = new Date();
+    const s = n.toLocaleDateString('th-TH', {weekday:'short',year:'numeric',month:'short',day:'numeric'}) + ' · ' + localTimeStr(n);
+    document.getElementById('tb-clock').textContent = s;
+    const mc = document.getElementById('modal-clock');
+    if (mc) mc.textContent = 'เวลาปัจจุบัน: ' + s;
+  }
+  tick();
+  clockInterval = setInterval(tick, 1000);
+}
+function stopClock() { if (clockInterval) { clearInterval(clockInterval); clockInterval = null; } }
+
+/* ── Capital / Balance ── */
+function saveCapital() {
+  const v = document.getElementById('capital-input').value;
+  if (currentProfile) localStorage.setItem(capitalKey(currentProfile.id), v);
+  updateStats();
+}
+function saveBalance() {
+  const v = document.getElementById('balance-input').value;
+  if (currentProfile) localStorage.setItem(balanceKey(currentProfile.id), v);
+  const cap = parseFloat(document.getElementById('capital-input').value) || 0;
+  const bal = parseFloat(v) || 0;
+  if (cap && bal) {
+    const diff = bal - cap;
+    const pct = (diff / cap * 100).toFixed(2);
+    document.getElementById('s-balance-sub').textContent = (diff >= 0 ? '+' : '') + '$' + diff.toFixed(2) + ' (' + pct + '%)';
+  } else {
+    document.getElementById('s-balance-sub').textContent = 'กรอกยอดปัจจุบัน';
+  }
+  updateStats();
+}
+
+/* ── Month Bar ── */
+function buildMonthBar() {
+  const bar = document.getElementById('month-bar');
+  if (!bar) return;
+  const yearSet = new Set(trades.map(t => (t.date||'').slice(0,4)).filter(y=>y));
+  yearSet.add(String(new Date().getFullYear()));
+  const years = [...yearSet].map(Number).sort((a,b) => b-a);
+  let html = `<select class="year-select" id="year-sel" onchange="changeYear(this.value)">`;
+  years.forEach(y => { html += `<option value="${y}"${y===activeYear?' selected':''}>${y}</option>`; });
+  html += `</select>`;
+  const tabs = MONTHS_TH.map((m,i) => {
+    const mo = i+1;
+    const prefix = activeYear+'-'+String(mo).padStart(2,'0');
+    const hasTrades = trades.some(t => (t.date||'').startsWith(prefix));
+    const isActive = mo === activeMonth;
+    return `<button class="month-tab${isActive?' active':''}${hasTrades?' has-data':''}" onclick="setMonth(${mo})">${m}</button>`;
+  }).join('');
+  bar.innerHTML = tabs + html;
+}
+function setMonth(mo) { activeMonth = mo; buildMonthBar(); renderTable(); updateStats(); }
+function changeYear(y) { activeYear = parseInt(y); buildMonthBar(); renderTable(); updateStats(); }
+
+/* ── Table ── */
+function getMonthTrades() {
+  const prefix = activeYear+'-'+String(activeMonth).padStart(2,'0');
+  return trades.filter(t => (t.date||'').startsWith(prefix));
+}
+function emoClass(e) {
+  return {'สงบ':'emo-calm','FOMO':'emo-fomo','กลัว':'emo-fear','มั่นใจ':'emo-conf','โลภ':'emo-greed','แก้ตัว':'emo-rev'}[e]||'';
+}
+function resBadge(r) { return r==='Win'?'win':r==='Loss'?'loss':r==='Open'?'open-b':'be'; }
+function cut(s, n) { return s && s.length > n ? s.slice(0,n)+'…' : s||'—'; }
+function rrCls(r) { const v=parseFloat(r); if(!v||isNaN(v)) return 'rr-neu'; return v>=2?'rr-good':v>=1?'rr-ok':'rr-bad'; }
+
+function renderTable(q='') {
+  const body = document.getElementById('tbl-body');
+  const q2 = (q||'').toLowerCase();
+  const monthTrades = getMonthTrades();
+  const sorted = [...monthTrades].map(t => ({...t, _i: trades.indexOf(t)}))
+    .sort((a,b) => {
+      const dc = b.date.localeCompare(a.date); if(dc) return dc;
+      const tc = (b.time||'').localeCompare(a.time||''); if(tc) return tc;
+      return b.ts - a.ts;
+    });
+  const filtered = q2 ? sorted.filter(t =>
+    [t.date,t.time,t.symbol,t.dir,t.result,t.emo,t.rin,t.rout,t.entry,t.exit,t.lot,t.rr].join(' ').toLowerCase().includes(q2)
+  ) : sorted;
+  document.getElementById('row-count').textContent = filtered.length + ' รายการ';
+  if (!filtered.length) {
+    body.innerHTML = `<tr class="empty-row"><td colspan="21">${q2?'ไม่พบรายการ':'ยังไม่มีข้อมูล — กด "+ เพิ่มไม้ใหม่"'}</td></tr>`;
+    return;
+  }
+  body.innerHTML = filtered.map((t, row) => {
+    const pnl = parseFloat(t.pnl)||0;
+    const pnlCls = pnl>0?'pnl-pos':pnl<0?'pnl-neg':'';
+    const pnlStr = pnl>0?'+$'+pnl.toFixed(2):pnl<0?'-$'+Math.abs(pnl).toFixed(2):'$0.00';
+    const rrDisp = t.rr?'1:'+t.rr:'—';
+    return `<tr>
+      <td style="color:var(--text3);font-size:10px;font-family:'DM Mono',monospace">${row+1}</td>
+      <td class="mono" style="font-size:11px;font-weight:500;white-space:nowrap">${t.date||'—'}</td>
+      <td class="mono" style="font-size:10px;color:var(--text3);white-space:nowrap">${t.time||'—'}</td>
+      <td style="text-align:center;font-family:'Syne',sans-serif;font-weight:700">${t.no||'—'}</td>
+      <td style="font-weight:700;color:var(--gold)">${t.symbol}</td>
+      <td><span class="badge ${t.dir==='Buy'?'buy':'sell'}">${t.dir}</span></td>
+      <td class="mono" style="font-size:10px;color:var(--text2)">${formatZoneOrders(t.zoneOrders, t.lot)}</td>
+      <td class="mono" style="font-weight:600;color:var(--gold)">${calcTotalLot(t.zoneOrders, t.lot)}</td>
+      <td class="mono">${t.entry||'—'}</td>
+      <td class="mono">${t.exit||'—'}</td>
+      <td class="mono" style="color:var(--text3)">${t.tp||'—'}</td>
+      <td class="mono" style="color:var(--text3)">${t.sl||'—'}</td>
+      <td class="mono" style="color:var(--text3)">${t.be||'—'}</td>
+      <td class="${rrCls(t.rr)} mono" style="font-size:11px">${rrDisp}</td>
+      <td style="max-width:140px;font-size:11px;color:var(--text2)">${cut(t.rin,44)}</td>
+      <td style="max-width:140px;font-size:11px;color:var(--text2)">${cut(t.rout,44)}</td>
+      <td style="max-width:140px;font-size:11px;color:var(--text3);font-style:italic">${cut(t.rmood,44)}</td>
+      <td><span class="badge ${resBadge(t.result)}">${t.result}</span></td>
+      <td><span class="badge ${emoClass(t.emo)}">${t.emo||'—'}</span></td>
+      <td class="${pnlCls}">${pnlStr}</td>
+      <td style="white-space:nowrap;display:flex;gap:4px">
+        <button class="btn" style="font-size:10px;padding:3px 8px" onclick="openForm(${t._i})">แก้ไข</button>
+        <button class="btn danger" style="font-size:10px;padding:3px 8px" onclick="deleteEntry(${t._i})">ลบ</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Stats ── */
+function updateStats() {
+  const mt = getMonthTrades();
+  const total = mt.length;
+  const buys = mt.filter(t=>t.dir==='Buy').length;
+  const sells = mt.filter(t=>t.dir==='Sell').length;
+  const wins = mt.filter(t=>t.result==='Win').length;
+  const losses = mt.filter(t=>t.result==='Loss').length;
+  const closed = wins+losses;
+  const wr = closed>0?Math.round(wins/closed*100)+'%':'—';
+  const pnl = mt.reduce((s,t)=>s+(parseFloat(t.pnl)||0),0);
+  const todayCount = mt.filter(t=>t.date===todayStr).length;
+  const rrList = mt.filter(t=>t.result==='Win'&&t.rr&&parseFloat(t.rr)>0);
+  const avgRR = rrList.length>0?(rrList.reduce((s,t)=>s+parseFloat(t.rr),0)/rrList.length).toFixed(2):null;
+  const bes = mt.filter(t=>t.result==='BE').length;
+  const emoCalm = mt.filter(t=>t.emo==='สงบ').length;
+  const emoFomo = mt.filter(t=>t.emo==='FOMO').length;
+  const emoFear = mt.filter(t=>t.emo==='กลัว').length;
+  const emoConf = mt.filter(t=>t.emo==='มั่นใจ').length;
+  const emoGreed = mt.filter(t=>t.emo==='โลภ').length;
+  const emoRev = mt.filter(t=>t.emo==='แก้ตัว').length;
+
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-buy').textContent = buys;
+  document.getElementById('s-sell').textContent = sells;
+  document.getElementById('s-win').textContent = wins;
+  document.getElementById('s-loss').textContent = losses;
+  document.getElementById('s-be').textContent = bes;
+  document.getElementById('s-wr').textContent = wr;
+  document.getElementById('e-calm').textContent = emoCalm;
+  document.getElementById('e-fomo').textContent = emoFomo;
+  document.getElementById('e-fear').textContent = emoFear;
+  document.getElementById('e-conf').textContent = emoConf;
+  document.getElementById('e-greed').textContent = emoGreed;
+  document.getElementById('e-rev').textContent = emoRev;
+  const rrEl = document.getElementById('s-rr');
+  rrEl.textContent = avgRR!=null?'1:'+avgRR:'—';
+  rrEl.className = 'stat-val '+(parseFloat(avgRR)>=2?'pos':parseFloat(avgRR)>=1?'gold':'neg');
+  document.getElementById('s-rr-sub').textContent = rrList.length?'จาก '+rrList.length+' ไม้':'';
+  const pe = document.getElementById('s-pnl');
+  pe.textContent = (pnl>=0?'+':'')+'$'+pnl.toFixed(2);
+  pe.className = 'stat-val '+(pnl>0?'pos':pnl<0?'neg':'');
+  document.getElementById('s-today').textContent = todayCount;
+
+  // PnL periods (all trades, not month-filtered)
+  const todayPnl = trades.filter(t=>t.date===todayStr).reduce((s,t)=>s+(parseFloat(t.pnl)||0),0);
+  const n2 = new Date();
+  const weekStart = new Date(n2); weekStart.setDate(n2.getDate()-n2.getDay());
+  const weekStartStr = localDateStr(weekStart);
+  const weekPnl = trades.filter(t=>t.date>=weekStartStr&&t.date<=todayStr).reduce((s,t)=>s+(parseFloat(t.pnl)||0),0);
+  const monthStr = todayStr.slice(0,7);
+  const monthPnl = trades.filter(t=>t.date.startsWith(monthStr)).reduce((s,t)=>s+(parseFloat(t.pnl)||0),0);
+  const todayTrades = trades.filter(t=>t.date===todayStr).length;
+  const ptEl = document.getElementById('s-pnl-today');
+  ptEl.textContent = (todayPnl>=0?'+':'')+'$'+todayPnl.toFixed(2);
+  ptEl.className = 'stat-val '+(todayPnl>0?'pos':todayPnl<0?'neg':'');
+  document.getElementById('s-pnl-today-sub').textContent = todayTrades+' ไม้วันนี้';
+  const pwEl = document.getElementById('s-pnl-week');
+  pwEl.textContent = (weekPnl>=0?'+':'')+'$'+weekPnl.toFixed(2);
+  pwEl.className = 'stat-val '+(weekPnl>0?'pos':weekPnl<0?'neg':'');
+  const pmEl = document.getElementById('s-pnl-month');
+  pmEl.textContent = (monthPnl>=0?'+':'')+'$'+monthPnl.toFixed(2);
+  pmEl.className = 'stat-val '+(monthPnl>0?'pos':monthPnl<0?'neg':'');
+
+  // Equity
+  const allPnl = trades.reduce((s,t)=>s+(parseFloat(t.pnl)||0),0);
+  const cap = parseFloat(document.getElementById('capital-input').value)||0;
+  const equity = cap+allPnl;
+  const eqEl = document.getElementById('s-equity');
+  if(cap>0){
+    eqEl.textContent = '$'+equity.toFixed(2);
+    eqEl.className = 'stat-val '+(equity>cap?'pos':equity<cap?'neg':'');
+    const pct = ((equity-cap)/cap*100);
+    document.getElementById('s-equity-pct').textContent = (pct>=0?'+':'')+pct.toFixed(2)+'%';
+  } else {
+    eqEl.textContent = '—'; eqEl.className = 'stat-val';
+    document.getElementById('s-equity-pct').textContent = 'กรอกเงินทุนเพื่อคำนวณ';
+  }
+
+  // Streak
+  const ct = [...trades].filter(t=>t.result==='Win'||t.result==='Loss')
+    .sort((a,b)=>{ const dc=a.date.localeCompare(b.date); if(dc)return dc; return(a.time||'').localeCompare(b.time||''); });
+  let maxW=0,maxL=0,curW=0,curL=0;
+  ct.forEach(t=>{ if(t.result==='Win'){curW++;curL=0;if(curW>maxW)maxW=curW;}else{curL++;curW=0;if(curL>maxL)maxL=curL;} });
+  document.getElementById('s-wstreak').textContent = maxW||0;
+  document.getElementById('s-lstreak').textContent = maxL||0;
+  if(ct.length>0){
+    const last = ct[ct.length-1].result;
+    let cur=0;
+    for(let i=ct.length-1;i>=0;i--){ if(ct[i].result===last)cur++;else break; }
+    const cEl = document.getElementById('s-curstreak');
+    cEl.textContent = (last==='Win'?'+':'-')+cur;
+    cEl.className = 'stat-val '+(last==='Win'?'pos':'neg');
+    document.getElementById('s-curstreak-sub').textContent = last==='Win'?'ชนะต่อเนื่อง':'แพ้ต่อเนื่อง';
+  } else {
+    document.getElementById('s-curstreak').textContent = '—';
+    document.getElementById('s-curstreak').className = 'stat-val';
+    document.getElementById('s-curstreak-sub').textContent = '';
+  }
+}
+
+/* ── Position Calculator ── */
+function calcPos() {
+  const port = parseFloat(document.getElementById('pc-port').value);
+  const riskAmt = parseFloat(document.getElementById('pc-risk').value);
+  const sl = parseFloat(document.getElementById('pc-sl').value);
+  const riskPct = parseFloat(document.getElementById('pc-riskpct').value);
+  let effectiveRisk = riskAmt;
+  if((!riskAmt||isNaN(riskAmt))&&riskPct&&port) effectiveRisk = port*riskPct/100;
+  if(effectiveRisk>0&&sl>0){
+    const rawLot = effectiveRisk/(sl*1.0);
+    const lot = Math.floor(rawLot*100)/100;
+    const actualLoss = lot*sl*1.0;
+    const pct = port>0?(actualLoss/port*100).toFixed(2):'—';
+    document.getElementById('pc-lot').textContent = lot.toFixed(2)+' lot';
+    document.getElementById('pc-maxloss').textContent = '$'+actualLoss.toFixed(2);
+    document.getElementById('pc-riskshow').textContent = port>0?pct+'%':'—';
+  } else {
+    ['pc-lot','pc-maxloss','pc-riskshow'].forEach(id=>document.getElementById(id).textContent='—');
+  }
+}
+
+/* ── R:R ── */
+function calcRR() {
+  const entry = parseFloat(document.getElementById('f-entry').value);
+  const exit = parseFloat(document.getElementById('f-exit').value);
+  const sl = parseFloat(document.getElementById('f-sl').value);
+  const dir = document.getElementById('f-dir').value;
+  const result = document.getElementById('f-result').value;
+  const rrEl = document.getElementById('f-rr');
+  const hint = document.getElementById('rr-hint');
+  if(result!=='Win'&&result!=='Loss'){
+    rrEl.value='—'; hint.textContent='นับ R:R เฉพาะ Win/Loss เท่านั้น'; hint.style.color='var(--text3)'; return '';
+  }
+  if(entry&&exit&&sl&&Math.abs(sl-entry)>0){
+    const sign = dir==='Buy'?1:-1;
+    const reward = sign*(exit-entry);
+    const risk = Math.abs(sl-entry);
+    const slOk = sign*(entry-sl)>0;
+    if(!slOk){ rrEl.value='⚠️ SL ผิดทิศ'; hint.textContent='SL ต้องอยู่ใต้ Entry (Buy) หรือเหนือ (Sell)'; hint.style.color='var(--red)'; return ''; }
+    const rr = reward/risk;
+    const rrStr = rr.toFixed(2);
+    rrEl.value = (rr>=0?'1 : ':'-1 : ')+Math.abs(rr).toFixed(2);
+    if(rr>=2){ hint.textContent='✅ R:R ดีมาก (≥1:2)'; hint.style.color='var(--green)'; }
+    else if(rr>=1){ hint.textContent='⚠️ R:R พอใช้ (1:1~1:2)'; hint.style.color='var(--orange)'; }
+    else if(rr>0){ hint.textContent='❌ R:R ต่ำกว่า 1:1'; hint.style.color='var(--red)'; }
+    else { hint.textContent='💸 Loss: -'+Math.abs(rr).toFixed(2)+'R'; hint.style.color='var(--red)'; }
+    return rrStr;
+  }
+  rrEl.value=''; hint.textContent=''; return '';
+}
+function computeRR(entry,exit,sl,dir,result){
+  if(result!=='Win'&&result!=='Loss') return '';
+  const e=parseFloat(entry),x=parseFloat(exit),s=parseFloat(sl);
+  if(!e||!x||!s||Math.abs(s-e)===0) return '';
+  const sign=dir==='Buy'?1:-1;
+  const reward=sign*(x-e); const risk=Math.abs(s-e);
+  if(risk===0) return '';
+  return (reward/risk).toFixed(2);
+}
+
+/* ── Zone Orders ── */
+let zoneOrderCount = 0;
+
+function addZoneOrder(lotVal='', entryVal='', tpVal='', noteVal='') {
+  zoneOrderCount++;
+  const id = 'zo_' + zoneOrderCount;
+  const container = document.getElementById('zone-orders-container');
+  const row = document.createElement('div');
+  row.className = 'zone-order-row';
+  row.dataset.zoid = id;
+  row.innerHTML = `
+    <div class="zone-order-num">${container.children.length + 1}</div>
+    <div class="zone-field"><label>Lot Size</label><input type="number" class="zo-lot" placeholder="0.01" step="0.01" min="0.01" value="${lotVal}" oninput="updateZoneSummary()"/></div>
+    <div class="zone-field"><label>Entry Price</label><input type="number" class="zo-entry" placeholder="2300.00" step="0.01" value="${entryVal}" oninput="updateZoneSummary()"/></div>
+    <div class="zone-field"><label>TP Price</label><input type="number" class="zo-tp" placeholder="2320.00" step="0.01" value="${tpVal}" oninput="updateZoneSummary()"/></div>
+    <button type="button" class="zone-order-del" onclick="removeZoneOrder(this)" title="ลบ">×</button>`;
+  container.appendChild(row);
+  renumberZoneOrders();
+  updateZoneSummary();
+}
+
+function removeZoneOrder(btn) {
+  const row = btn.closest('.zone-order-row');
+  row.remove();
+  renumberZoneOrders();
+  updateZoneSummary();
+}
+
+function renumberZoneOrders() {
+  const rows = document.querySelectorAll('#zone-orders-container .zone-order-row');
+  rows.forEach((r, i) => {
+    const num = r.querySelector('.zone-order-num');
+    if (num) num.textContent = i + 1;
+  });
+}
+
+function updateZoneSummary() {
+  const rows = document.querySelectorAll('#zone-orders-container .zone-order-row');
+  let totalLot = 0; let valid = 0;
+  rows.forEach(r => {
+    const lot = parseFloat(r.querySelector('.zo-lot').value) || 0;
+    if (lot > 0) { totalLot += lot; valid++; }
+  });
+  const sl = parseFloat(document.getElementById('f-sl').value) || 0;
+  let riskStr = '';
+  if (sl > 0 && totalLot > 0) {
+    const risk = totalLot * sl * 1.0; // $1/pip/0.01lot → totalLot*sl
+    riskStr = ` · Risk รวม ~$${risk.toFixed(2)}`;
+  }
+  const el = document.getElementById('zone-summary');
+  el.textContent = rows.length > 0
+    ? `${valid} orders · Total Lot: ${totalLot.toFixed(2)}${riskStr}`
+    : 'ยังไม่มี order';
+}
+
+function getZoneOrdersData() {
+  const rows = document.querySelectorAll('#zone-orders-container .zone-order-row');
+  return Array.from(rows).map((r, i) => ({
+    no: i + 1,
+    lot: r.querySelector('.zo-lot').value,
+    entry: r.querySelector('.zo-entry').value,
+    tp: r.querySelector('.zo-tp').value
+  }));
+}
+
+function formatZoneOrders(zoneOrders, fallbackLot) {
+  if (!zoneOrders || !zoneOrders.length) {
+    return fallbackLot ? `1 × ${fallbackLot}` : '—';
+  }
+  return zoneOrders.map(o => o.lot || '?').join(' / ') + ' lot';
+}
+
+function calcTotalLot(zoneOrders, fallbackLot) {
+  if (!zoneOrders || !zoneOrders.length) return fallbackLot || '—';
+  const total = zoneOrders.reduce((s, o) => s + (parseFloat(o.lot) || 0), 0);
+  return total > 0 ? total.toFixed(2) : (fallbackLot || '—');
+}
+
+/* ── Trade Form ── */
+function openForm(idx) {
+  editIdx = idx!==undefined?idx:-1;
+  document.getElementById('form-title').textContent = editIdx>=0?'✏️ แก้ไขรายการ':'+ บันทึกไม้ใหม่';
+  const F = (id,val) => { const el=document.getElementById(id); if(el) el.value=val||''; };
+  const n = new Date();
+  // clear zone orders
+  document.getElementById('zone-orders-container').innerHTML = '';
+  zoneOrderCount = 0;
+
+  if(editIdx>=0){
+    const t = trades[editIdx];
+    F('f-date',t.date); F('f-time',t.time); F('f-no',t.no);
+    F('f-sym',t.symbol); F('f-dir',t.dir);
+    F('f-entry',t.entry); F('f-exit',t.exit); F('f-tp',t.tp); F('f-sl',t.sl); F('f-be',t.be);
+    F('f-result',t.result); F('f-emo',t.emo); F('f-pnl',t.pnl);
+    F('f-rin',t.rin); F('f-rout',t.rout); F('f-rmood',t.rmood);
+    document.getElementById('f-rr').value = t.rr?'1 : '+t.rr:'';
+    document.getElementById('rr-hint').textContent = '';
+    // restore zone orders
+    if (t.zoneOrders && t.zoneOrders.length) {
+      t.zoneOrders.forEach(o => addZoneOrder(o.lot, o.entry, o.tp));
+    } else {
+      // legacy: single lot
+      addZoneOrder(t.lot || '', t.entry || '');
+    }
+  } else {
+    ['f-entry','f-exit','f-tp','f-sl','f-be','f-pnl','f-rin','f-rout','f-rmood'].forEach(id=>F(id,''));
+    document.getElementById('f-rr').value = ''; document.getElementById('rr-hint').textContent = '';
+    F('f-date', localDateStr(n)); F('f-time', localTimeStr(n));
+    F('f-no', trades.filter(t=>t.date===localDateStr(n)).length+1);
+    document.getElementById('f-sym').value='XAUUSD';
+    document.getElementById('f-dir').value='Buy';
+    document.getElementById('f-result').value='Win';
+    document.getElementById('f-emo').value='สงบ';
+    // start with 1 empty zone order
+    addZoneOrder();
+  }
+  updateZoneSummary();
+  document.getElementById('form-overlay').classList.add('open');
+}
+function closeForm() { document.getElementById('form-overlay').classList.remove('open'); }
+function saveEntry() {
+  const g = id => document.getElementById(id).value;
+  const zoneOrders = getZoneOrdersData();
+  const totalLot = zoneOrders.reduce((s, o) => s + (parseFloat(o.lot)||0), 0);
+  const firstEntry = zoneOrders.length > 0 ? (zoneOrders[0].entry || g('f-entry')) : g('f-entry');
+  const rrVal = computeRR(firstEntry, g('f-exit'), g('f-sl'), g('f-dir'), g('f-result'));
+  const entry = {
+    date:g('f-date'), time:g('f-time'), no:g('f-no'),
+    symbol:g('f-sym'), dir:g('f-dir'),
+    lot: totalLot > 0 ? totalLot.toFixed(2) : '',
+    zoneOrders,
+    entry:firstEntry, exit:g('f-exit'), tp:g('f-tp'), sl:g('f-sl'), be:g('f-be'),
+    rr:rrVal, result:g('f-result'), emo:g('f-emo'), pnl:g('f-pnl'),
+    rin:g('f-rin'), rout:g('f-rout'), rmood:g('f-rmood'), ts:Date.now()
+  };
+  if(!entry.date){ showToast('⚠️ กรุณาเลือกวันที่'); return; }
+  if(editIdx>=0) trades[editIdx]=entry; else trades.push(entry);
+  closeForm(); saveTrades(); buildMonthBar(); renderTable(); updateStats();
+}
+function deleteEntry(i) {
+  openConfirm('ต้องการลบรายการนี้?', () => {
+    trades.splice(i,1); saveTrades(); buildMonthBar(); renderTable(); updateStats();
+  });
+}
+
+/* ── Export / Import CSV ── */
+function exportCSV() {
+  if(!trades.length){ showToast('⚠️ ไม่มีข้อมูล'); return; }
+  const h = ['วันที่','เวลา','ไม้ที่','Symbol','Direction','Lot Size','Orders/Zone','Entry','Exit','TP','SL','BE','R:R','เหตุผล Entry','เหตุผล Exit','อารมณ์บันทึก','ผลลัพธ์','อารมณ์','PnL'];
+  const rows = [...trades].sort((a,b)=>b.date.localeCompare(a.date)).map(t => [
+    t.date,t.time||'',t.no,t.symbol,t.dir,t.lot||'',t.orders||'1',
+    t.entry,t.exit,t.tp,t.sl,t.be,t.rr?'1:'+t.rr:'',
+    '"'+(t.rin||'').replace(/"/g,"'")+'"',
+    '"'+(t.rout||'').replace(/"/g,"'")+'"',
+    '"'+(t.rmood||'').replace(/"/g,"'")+'"',
+    t.result,t.emo,t.pnl
+  ].join(','));
+  const csv = '\uFEFF'+[h.join(','),...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download = 'journal_'+(currentProfile?currentProfile.name+'_':'')+localDateStr(new Date())+'.csv';
+  a.click();
+  showToast('✓ Export สำเร็จ');
+}
+function importTrigger() { document.getElementById('import-input').click(); }
+function importCSV(e) {
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const lines = ev.target.result.replace(/^\uFEFF/,'').split('\n').filter(l=>l.trim());
+    let added = 0;
+    lines.slice(1).forEach(row => {
+      const cols = row.match(/(".*?"|[^,]*)(?:,|$)/g)||[];
+      const clean = cols.map(c=>(c||'').replace(/^,|,$/g,'').replace(/^"|"$/g,'').trim());
+      if(clean.length>=15&&clean[0]){
+        trades.push({
+          date:clean[0],time:clean[1]||'',no:clean[2],symbol:clean[3],dir:clean[4],
+          lot:clean[5]||'',orders:clean[6]||'1',
+          entry:clean[7],exit:clean[8],tp:clean[9],sl:clean[10],be:clean[11],
+          rr:(clean[12]||'').replace('1:',''),
+          rin:clean[13],rout:clean[14],rmood:clean[15]||'',
+          result:clean[16],emo:clean[17]||'',pnl:clean[18]||'',ts:Date.now()
+        });
+        added++;
+      }
+    });
+    if(added>0){ saveTrades(); buildMonthBar(); renderTable(); updateStats(); showToast('✓ Import '+added+' รายการ'); }
+    else showToast('⚠️ ไม่พบข้อมูลที่ถูกต้อง');
+    e.target.value='';
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+/* ── INIT ── */
+loadProfiles();
+renderProfileScreen();
+</script>
+</body>
+</html>
